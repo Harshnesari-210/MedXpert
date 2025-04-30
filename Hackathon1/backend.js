@@ -6,9 +6,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Auth from "./src/modules/userAuth.js";
 import Appointment from "./src/modules/appoinment.js";
-
-// import Doctor from "./src/modules/doctorAuth.js";
+import authenticateDoctor from "./src/middlewares/auth.js";
 import path from "path";
+import DoctorAvailability from "./src/modules/doctorAvailibility.js";
 
 const app = express();
 const PORT = 3000;
@@ -44,7 +44,7 @@ app.post("/signup", async (req, res) => {
       role,
       speciality: role === "doctor" ? speciality : null,
     });
-
+    
     await user.save();
     res.status(201).json({ message: "User created successfully" });
   } catch (error) {
@@ -246,6 +246,162 @@ app.post("/book-appointment", async (req, res) => {
   }
 });
 
+
+
+
+// Default time slots
+const DEFAULT_SLOTS = [
+  "09:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "01:00 PM",
+  "03:00 PM"
+];
+
+//add available slots
+app.post("/doctor/availability", authenticateDoctor, async (req, res) => {
+  const { date, slots } = req.body;
+  const doctorId = req.user._id; // Extract the doctor ID from the authenticated user
+
+  if (!date || !slots || !Array.isArray(slots)) {
+    return res.status(400).json({ error: "doctorId, date, and slots[] are required" });
+  }
+
+  try {
+    const formattedDate = new Date(date);  // Store the date exactly as it is
+
+    // Check if availability already exists for this doctor on this date
+    const existing = await DoctorAvailability.findOne({ doctorId, date: formattedDate });
+
+    if (existing) {
+      // If availability exists, update the slots
+      existing.slots = slots;
+      await existing.save();
+      return res.json({ success: true, message: "Availability updated", availability: existing });
+    }
+
+    // Otherwise, create new availability
+    const newAvailability = new DoctorAvailability({
+      doctorId,
+      date: formattedDate,  // Store the date exactly as it is
+      slots,
+    });
+
+    await newAvailability.save();
+    res.json({ success: true, message: "Availability created", availability: newAvailability });
+  } catch (err) {
+    console.error("Error saving availability:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+//get available slots
+app.get("/available-slots", async (req, res) => {
+  const { doctorId, date } = req.query;
+  console.log("Doctor ID:", doctorId);
+  console.log("Original Date:", date);
+
+  if (!doctorId || !date) {
+    return res.status(400).json({ success: false, error: "doctorId and date are required" });
+  }
+
+  try {
+    // Parse the date
+    const parsedDate = new Date(date);  // Directly use the provided date without adjustments
+
+    // Query for availability for the exact date
+    const availability = await DoctorAvailability.findOne({
+      doctorId,
+      date: parsedDate,  // No complex time zone handling, use exact date as is
+    });
+
+    if (!availability) {
+      return res.status(404).json({ success: false, message: "No availability found" });
+    }
+
+    const bookedAppointments = await Appointment.find({
+      doctorId,
+      date: parsedDate,  // Compare the exact date
+    });
+
+    const bookedSlots = bookedAppointments.map(app => app.timeSlot);
+
+    const availableSlots = availability.slots.filter(slot => !bookedSlots.includes(slot));
+
+    res.json({
+      success: true,
+      slots: availableSlots,
+    });
+  } catch (err) {
+    console.error("Error fetching slots:", err);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+});
+
+
+
+
+
+app.post("/book-slot", authenticateDoctor, async (req, res) => {
+  const { doctorId, date, timeSlot } = req.body;
+  const patientId = req.user._id;
+
+  if (!doctorId || !date || !timeSlot) {
+    return res.status(400).json({ success: false, message: "doctorId, date, and timeSlot are required" });
+  }
+
+  try {
+    const formattedDate = new Date(date);
+    formattedDate.setHours(0, 0, 0, 0); // Normalize to start of the day
+
+    // Check if the slot is already booked
+    const existing = await Appointment.findOne({
+      doctorId,
+      date: formattedDate,
+      timeSlot
+    });
+
+    if (existing) {
+      return res.status(409).json({ success: false, message: "This slot is already booked" });
+    }
+
+    // Book the appointment
+    const newAppointment = new Appointment({
+      doctorId,
+      patientId,
+      date: formattedDate,
+      timeSlot,
+    });
+
+    await newAppointment.save();
+
+    res.status(201).json({ success: true, message: "Appointment booked", appointment: newAppointment });
+  } catch (err) {
+    console.error("Error booking slot:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+app.get('/booked-slots', authenticateDoctor, async (req, res) => {
+
+  try {
+    let appointments;
+    console.log(req.user)
+    if (req.user.role === 'doctor') {
+      appointments = await Appointment.find({ doctorId: req.user._id }).populate("patientId", "firstName lastName email");
+    } else if (req.user.role === 'patient') {
+      appointments = await Appointment.find({ patientId: req.user._id }).populate("doctorId", "firstName lastName speciality email");
+    } else {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 

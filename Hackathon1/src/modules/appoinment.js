@@ -13,9 +13,9 @@ const AppointmentSchema = new mongoose.Schema({
   },
   requestId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Request', // Optional, and you're not using this now
+    ref: 'Request',
   },
-  timeSlot: { type: String, required: true }, // Example: "10:30 AM"
+  timeSlot: { type: String, required: true },
   date: { type: Date, required: true },
   status: {
     type: String,
@@ -26,5 +26,4 @@ const AppointmentSchema = new mongoose.Schema({
 });
 
 const Appointment = mongoose.model('Appointment', AppointmentSchema);
-
-export default Appointment
+export default Appointment;

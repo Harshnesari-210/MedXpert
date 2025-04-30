@@ -23,7 +23,7 @@ function AuthPage({ isSignup }) {
           email,
           password,
           role: userType,
-          speciality: userType === "doctor" ? speciality : null, // Send speciality for doctors
+          speciality: userType === "doctor" ? speciality.trim() : null, // Send speciality for doctors
         });
 
         console.log(response.data);
@@ -174,17 +174,18 @@ function AuthPage({ isSignup }) {
                 className="w-full px-3 py-2 border rounded focus:outline-none text-black"
               >
                 {[
-                  "Neurologist",
-                  "Endocrinologist",
-                  "Infectious Disease Specialist",
-                  "General Practitioner",
-                  "Cardiologist",
                   "Gastroenterologist",
-                ].map((speciality) => (
-                  <option key={speciality} value={speciality}>
-                    {speciality.charAt(0).toUpperCase()}
-                  </option>
-                ))}
+  "Neurologist",
+  "Endocrinologist",
+  "Infectious Disease Specialist",
+  "General Practitioner",
+  "Cardiologist",
+].map((spec) => (
+  <option key={spec} value={spec}>
+    {spec}
+  </option>
+))}
+
               </select>
             </div>
           </>
