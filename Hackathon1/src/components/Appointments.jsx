@@ -1,102 +1,122 @@
-function Appointments() {
-  // Local database object
-  const users = [
-    {
-      _id: "6748f042eca02cac690601dc",
-      firstName: "Akash",
-      lastName: "Halli",
-      email: "aka@gmail.com",
-      password: "$2b$10$lh.GPiB3de09tmfUHRqcdO2TYIyVdaUbFJWo4MyZJ5CUN/DbUrTzO",
-      role: "patient",
-      gender: null,
-      dob: null,
-      phone: "",
-      speciality: null,
-      __v: 0,
-    },
-    {
-      _id: "6748f219ca690c16723de8ef",
-      firstName: "Akash",
-      lastName: "Halli",
-      email: "10@gmail.com",
-      password: "$2b$10$N8wLOVrgaSxhFupORNgHhu/gAScuVf29HfKHWdjGvtr5CtiTulTmS",
-      role: "doctor",
-      gender: null,
-      dob: null,
-      phone: "",
-      speciality: "Neurologist",
-      __v: 0,
-    },
-    {
-      _id: "6748f23eca690c16723de8f3",
-      firstName: "Akash",
-      lastName: "Halli",
-      email: "12@gmail.com",
-      password: "$2b$10$p4iiliiZG21AkP6wrZM6Me2BNg4aeMyR7AMJz3WCmGqcG3vHHgQHq",
-      role: "patient",
-      gender: null,
-      dob: null,
-      phone: "",
-      speciality: null,
-      __v: 0,
-    },
-    {
-      _id: "6748f23eca690c16723de8f3",
-      firstName: "Harsh",
-      lastName: "Nesari",
-      email: "12@gmail.com",
-      password: "$2b$10$p4iiliiZG21AkP6wrZM6Me2BNg4aeMyR7AMJz3WCmGqcG3vHHgQHq",
-      role: "doctor",
-      gender: null,
-      dob: null,
-      phone: "",
-      speciality: "cardiologist",
-      __v: 0,
-    },
-  ];
+// import React, { useEffect, useState } from 'react';
+// import axios from 'axios';
 
-  // Filter out doctors from the local database
-  const doctors = users.filter((user) => user.role === "doctor");
+// function Appointments() {
+//   const [appointments, setAppointments] = useState([]);
+//   const [loading, setLoading] = useState(true);
 
-  // Handle Book Appointment button click
-  const handleBookAppointment = (doctorId) => {
-    alert(`Booking appointment with Doctor ID: ${doctorId}`);
-    // You can navigate to a booking form or send a POST request here
-  };
+//   useEffect(() => {
+//     const fetchAppointments = async () => {
+//       try {
+//         const response = await axios.get('http://localhost:3000/booked-slots', {
+//           withCredentials: true, // Needed if using cookies for auth
+//         });
+//         setAppointments(response.data);
+//       } catch (error) {
+//         console.error("Error fetching appointments:", error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchAppointments();
+//   }, []);
+
+//   if (loading) {
+//     return <p>Loading appointments...</p>;
+//   }
+
+//   if (appointments.length === 0) {
+//     return <p>No appointments found.</p>;
+//   }
+
+//   return (
+//     <div className="p-4">
+//       <h2 className="text-xl font-semibold mb-4">Your Booked Appointments</h2>
+//       <ul className="space-y-4">
+//         {appointments.map((appt) => (
+//           <li key={appt._id} className="border p-4 rounded shadow">
+//             {appt.doctorId ? (
+//               <>
+//                 <p><strong>Doctor:</strong> {appt.doctorId.firstName} {appt.doctorId.lastName}</p>
+//                 <p><strong>Speciality:</strong> {appt.doctorId.speciality}</p>
+//                 <p><strong>Email:</strong> {appt.doctorId.email}</p>
+//               </>
+//             ) : appt.patientId ? (
+//               <>
+//                 <p><strong>Patient:</strong> {appt.patientId.firstName} {appt.patientId.lastName}</p>
+//                 <p><strong>Email:</strong> {appt.patientId.email}</p>
+//               </>
+//             ) : (
+//               <p>Unknown role</p>
+//             )}
+//             <p><strong>Date:</strong> {new Date(appt.date).toLocaleDateString()}</p>
+//             <p><strong>Time:</strong> {appt.time}</p>
+//           </li>
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// }
+
+// export default Appointments;
+
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';  // Import Link from React Router
+
+function AppointmentDoctor() {
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/booked-slots', { withCredentials: true });
+        setAppointments(response.data);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
+
+  if (loading) {
+    return <p>Loading patient appointments...</p>;
+  }
+
+  if (appointments.length === 0) {
+    return <p>No patients have booked appointments yet.</p>;
+  }
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Available Doctors</h1>
-      {/* Doctor Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {doctors.map((doctor) => (
-          <div
-            key={doctor._id}
-            className="border p-4 rounded shadow-md bg-white"
-          >
-            <h2 className="text-xl font-semibold mb-2">
-              Dr. {doctor.firstName} {doctor.lastName}
-            </h2>
-            <p className="text-gray-700 mb-4">
-              <strong>Specialization:</strong> {doctor.speciality || "N/A"}
-            </p>
-            <button
-              onClick={() => handleBookAppointment(doctor._id)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-            >
-              Book Appointment
-            </button>
-          </div>
+    <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4">Appointments with Your Patients</h2>
+      <ul className="space-y-4">
+        {appointments.map((appt) => (
+          <li key={appt._id} className="border p-4 rounded shadow">
+            {appt.patientId ? (
+              <>
+                <p><strong>Patient:</strong> 
+                  <Link to={`/patient/${appt.patientId._id}`} className="text-blue-500 hover:underline">
+                    {appt.patientId.firstName} {appt.patientId.lastName}
+                  </Link>
+                </p>
+                <p><strong>Email:</strong> {appt.patientId.email}</p>
+              </>
+            ) : (
+              <p>Patient information not available</p>
+            )}
+            <p><strong>Date:</strong> {new Date(appt.date).toLocaleDateString()}</p>
+            <p><strong>Time:</strong> {appt.time}</p>
+          </li>
         ))}
-      </div>
-      {/* If no doctors are available */}
-      {doctors.length === 0 && (
-        <p className="text-gray-600 mt-4">
-          No doctors available at the moment.
-        </p>
-      )}
+      </ul>
     </div>
   );
 }
 
-export default Appointments;
+export default AppointmentDoctor;

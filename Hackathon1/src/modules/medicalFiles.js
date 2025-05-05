@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose"
 
 const MedicalFileSchema = new mongoose.Schema({
   patientId: {
@@ -17,4 +17,6 @@ const MedicalFileSchema = new mongoose.Schema({
   uploadedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('MedicalFile', MedicalFileSchema);
+const MedicalFile = mongoose.model('MedicalFile', MedicalFileSchema);
+
+export default MedicalFile

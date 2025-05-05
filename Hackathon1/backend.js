@@ -9,7 +9,8 @@ import Appointment from "./src/modules/appoinment.js";
 import authenticateDoctor from "./src/middlewares/auth.js";
 import path from "path";
 import DoctorAvailability from "./src/modules/doctorAvailibility.js";
-
+import medicalFileRoutes from "./src/routes/medicalFiles.js"
+import MedicalFile from "./src/modules/medicalFiles.js";
 const app = express();
 const PORT = 3000;
 // const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -22,8 +23,14 @@ app.use(
   })
 );
 
-
 app.use(cookieParser());
+
+
+
+app.use('/medical-files', medicalFileRoutes);
+
+
+
 
 // Signup Route
 app.post("/signup", async (req, res) => {
@@ -403,6 +410,51 @@ app.get('/booked-slots', authenticateDoctor, async (req, res) => {
   }
 });
 
+app.get('/all-files', async (req, res) => {
+  try {
+    const files = await MedicalFile.find()
+      .populate('patientId', 'firstName lastName email') // Optional: populate patient details
+      .populate('sharedWith', 'firstName lastName email'); // Optional: who it's shared with
+
+    res.status(200).json({ success: true, files });
+  } catch (error) {
+    console.error('Error fetching files:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
+
+// In your Express app
+
+// Fetch patient details by patientId
+app.get('/patient/:patientId', authenticateDoctor, async (req, res) => {
+  const { patientId } = req.params;
+
+  try {
+    const patient = await Auth.findById(patientId).select("-password");  // Exclude the password
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    res.json(patient);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching patient details' });
+  }
+});
+
+// In your Express app
+
+// Fetch all medical files for a specific patient
+app.get('/medical-files/:patientId', authenticateDoctor, async (req, res) => {
+  const { patientId } = req.params;
+
+  try {
+    const files = await MedicalFile.find({ patientId });
+    res.status(200).json(files);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching medical files' });
+  }
+});
 
 
 
@@ -412,6 +464,8 @@ app.use(express.static(path.join(__dirname, "dist")));
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
+app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
+
 
 // Database Connection
 database()
