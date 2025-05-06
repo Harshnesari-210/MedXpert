@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Appointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/booked-slots', {
-          withCredentials: true, // Needed if using cookies for auth
+        const res = await fetch('http://localhost:3000/booked-slots', {
+          credentials: 'include',
         });
-        setAppointments(response.data);
+        const data = await res.json();
+        if (res.ok) {
+          setAppointments(data);
+        } else {
+          console.error("Failed to fetch appointments");
+        }
       } catch (error) {
-        console.error("Error fetching appointments:", error);
+        console.error("Error:", error);
       } finally {
         setLoading(false);
       }
@@ -22,42 +28,42 @@ function Appointments() {
     fetchAppointments();
   }, []);
 
-  if (loading) {
-    return <p>Loading appointments...</p>;
-  }
+  const handleCardClick = (patientId) => {
+    if (patientId) {
+      navigate(`patient/prescriptions/${patientId}`);
+    } else {
+      console.warn("No patient ID found for this appointment");
+    }
+  };
 
-  if (appointments.length === 0) {
-    return <p>No appointments found.</p>;
-  }
+  if (loading) return <p className="p-4 text-center">Loading appointments...</p>;
+  if (appointments.length === 0) return <p className="p-4 text-center">No appointments found.</p>;
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Your Booked Appointments</h2>
-      <ul className="space-y-4">
+    <div className="p-6">
+      <h2 className="text-2xl font-semibold mb-6 text-center text-blue-700">Your Booked Appointments</h2>
+      <div className="grid gap-4 max-w-3xl mx-auto">
         {appointments.map((appt) => (
-          <li key={appt._id} className="border p-4 rounded shadow">
+          <div
+            key={appt._id}
+            onClick={() => handleCardClick(appt.patientId?._id)}
+            className="cursor-pointer bg-white p-5 rounded-xl shadow hover:bg-gray-50 transition"
+          >
             {appt.doctorId ? (
               <>
                 <p><strong>Doctor:</strong> {appt.doctorId.firstName} {appt.doctorId.lastName}</p>
-                <p><strong>Speciality:</strong> {appt.doctorId.speciality}</p>
                 <p><strong>Email:</strong> {appt.doctorId.email}</p>
               </>
-            ) : appt.patientId ? (
-              <>
-                <p><strong>Patient:</strong> {appt.patientId.firstName} {appt.patientId.lastName}</p>
-                <p><strong>Email:</strong> {appt.patientId.email}</p>
-              </>
             ) : (
-              <p>Unknown role</p>
+              <p>Doctor details not available</p>
             )}
             <p><strong>Date:</strong> {new Date(appt.date).toLocaleDateString()}</p>
             <p><strong>Time:</strong> {appt.time}</p>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
 
 export default Appointments;
-

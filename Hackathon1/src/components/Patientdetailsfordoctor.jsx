@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+
 
 function PatientDetail() {
   const { patientId } = useParams();
@@ -64,6 +65,10 @@ function PatientDetail() {
                   >
                     View File
                   </a>
+
+                  <Link to={`/doctor/billing/${patientId}`} className="text-blue-500 hover:underline">
+        Go to Billing
+      </Link>
                 </li>
               ))}
             </ul>

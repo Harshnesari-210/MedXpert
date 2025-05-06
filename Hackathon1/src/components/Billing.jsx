@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const Billing = () => {
-  const prescriptions = [
+  const { patientId } = useParams();
+
+  const staticMedicines = [
     { id: 1, name: "Paracetamol", cost: 10 },
     { id: 2, name: "Ibuprofen", cost: 20 },
     { id: 3, name: "Amoxicillin", cost: 15 },
@@ -14,9 +18,63 @@ const Billing = () => {
     { id: 10, name: "Eye Drops", cost: 35 },
   ];
 
+  const [prescriptions, setPrescriptions] = useState([]);
   const [selectedPrescription, setSelectedPrescription] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [billItems, setBillItems] = useState([]);
+
+  useEffect(() => {
+    const fetchPrescriptions = async () => {
+      try {
+        const response = await axios.get(`/prescriptions/${patientId}`);
+        setPrescriptions(response.data);
+      } catch (error) {
+        console.error("Error fetching prescriptions:", error);
+      }
+    };
+
+    fetchPrescriptions();
+  }, [patientId]);
+
+  const addPrescription = async () => {
+    let prescription;
+  
+    // First, try to get from selectedPrescription
+    if (selectedPrescription !== "") {
+      prescription = staticMedicines.find(
+        (item) => item.id === parseInt(selectedPrescription)
+      );
+    } else if (billItems.length > 0) {
+      // Fallback: use the last added item in bill
+      prescription = billItems[billItems.length - 1];
+    }
+  
+    if (!prescription) {
+      alert("Please select a medication!");
+      return;
+    }
+  
+    try {
+      const response = await axios.post(`/prescriptions/${patientId}`, {
+        medicines: [{
+          name: prescription.name,
+          quantity: `${quantity} units`,  // or "2 tablets", etc.
+          instructions: "Take after food", // optional but useful
+        }]
+      });
+      
+  
+      alert("Prescription added successfully!");
+      setPrescriptions((prev) => [...prev, response.data.prescription]);
+  
+      // Optional: reset selection
+      setSelectedPrescription("");
+    } catch (error) {
+      console.error("Error adding prescription:", error);
+    }
+  };
+  
+  
 
   const addToBill = () => {
     if (selectedPrescription === "") {
@@ -24,7 +82,7 @@ const Billing = () => {
       return;
     }
 
-    const prescription = prescriptions.find(
+    const prescription = staticMedicines.find(
       (item) => item.id === parseInt(selectedPrescription)
     );
 
@@ -44,6 +102,7 @@ const Billing = () => {
         { ...prescription, quantity: parseInt(quantity) },
       ]);
     }
+
     setSelectedPrescription("");
     setQuantity(1);
   };
@@ -53,11 +112,9 @@ const Billing = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-gray-50 shadow-lg rounded-md">
-      <h1 className="text-2xl font-bold text-gray-800 mb-4">
-        Prescription Billing
-      </h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">Prescription Billing</h1>
 
-      {/* Dropdown and input */}
+      {/* Prescription Selection */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
         <select
           value={selectedPrescription}
@@ -65,9 +122,9 @@ const Billing = () => {
           className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md"
         >
           <option value="">Select a Medication</option>
-          {prescriptions.map((prescription) => (
-            <option key={prescription.id} value={prescription.id}>
-              {prescription.name} - ₹{prescription.cost}
+          {staticMedicines.map((medicine) => (
+            <option key={medicine.id} value={medicine.id}>
+              {medicine.name} - ₹{medicine.cost}
             </option>
           ))}
         </select>
@@ -87,22 +144,25 @@ const Billing = () => {
         >
           Add to Bill
         </button>
+
+        <button
+          onClick={addPrescription}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        >
+          Add Prescription
+        </button>
       </div>
 
-      {/* Bill details */}
+      {/* Bill Table */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          Bill Details
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">Bill Details</h2>
         {billItems.length === 0 ? (
           <p className="text-gray-500">No items added to the bill.</p>
         ) : (
           <table className="w-full border-collapse border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2">
-                  Prescription
-                </th>
+                <th className="border border-gray-300 px-4 py-2">Medicine</th>
                 <th className="border border-gray-300 px-4 py-2">Cost</th>
                 <th className="border border-gray-300 px-4 py-2">Quantity</th>
                 <th className="border border-gray-300 px-4 py-2">Subtotal</th>
@@ -111,15 +171,9 @@ const Billing = () => {
             <tbody>
               {billItems.map((item) => (
                 <tr key={item.id}>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {item.name}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    ₹{item.cost}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {item.quantity}
-                  </td>
+                  <td className="border border-gray-300 px-4 py-2">{item.name}</td>
+                  <td className="border border-gray-300 px-4 py-2">₹{item.cost}</td>
+                  <td className="border border-gray-300 px-4 py-2">{item.quantity}</td>
                   <td className="border border-gray-300 px-4 py-2">
                     ₹{item.cost * item.quantity}
                   </td>
@@ -129,7 +183,7 @@ const Billing = () => {
           </table>
         )}
 
-        {/* Total cost */}
+        {/* Total */}
         <div className="mt-6 text-right">
           <h3 className="text-lg font-semibold">
             Total: <span className="text-green-600">₹{calculateTotal()}</span>

@@ -11,6 +11,8 @@ import path from "path";
 import DoctorAvailability from "./src/modules/doctorAvailibility.js";
 import medicalFileRoutes from "./src/routes/medicalFiles.js"
 import MedicalFile from "./src/modules/medicalFiles.js";
+import Prescription from "./src/modules/Prescription.js";
+
 const app = express();
 const PORT = 3000;
 // const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -453,6 +455,40 @@ app.get('/medical-files/:patientId', authenticateDoctor, async (req, res) => {
     res.status(200).json(files);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching medical files' });
+  }
+});
+
+
+
+
+// Doctor adds a prescription
+app.post('/prescriptions/:patientId', authenticateDoctor, async (req, res) => {
+  const { patientId } = req.params;
+  const doctorId = req.user._id;
+  const { medicines } = req.body;
+
+  try {
+    const newPrescription = new Prescription({
+      patientId,
+      doctorId,
+      medicines,
+    });
+
+    await newPrescription.save();
+    res.status(201).json({ message: "Prescription saved", prescription: newPrescription });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to save prescription" });
+  }
+});
+
+// Get all prescriptions for a patient (Doctor or Patient can view)
+app.get('/prescriptions/:patientId', async (req, res) => {
+  const { patientId } = req.params;
+  try {
+    const prescriptions = await Prescription.find({ patientId }).populate("doctorId", "firstName lastName email");
+    res.status(200).json(prescriptions);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch prescriptions" });
   }
 });
 

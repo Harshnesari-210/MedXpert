@@ -18,6 +18,7 @@ import MedicalFile from "./modules/medicalFiles";
 import MedicalFiles from "./components/getfiles";
 import SetAvailability from "./components/docotr-set-slots";
 import PatientDetail from "./components/Patientdetailsfordoctor";
+import PrescriptionDetails from "./components/PrescriptionDetails";
 
 
 function App() {
@@ -35,6 +36,8 @@ function App() {
     <Route path="profile" element={<DoctorProfile />} errorElement={<Error />} />
     <Route path="availability" element={<SetAvailability />} errorElement={<Error />} />
     <Route path="patient/:patientId" element={<PatientDetail />} errorElement={<Error />} />
+    <Route path="billing/:patientId" element={<Billing />} errorElement={<Error />} />
+
 
   </Route>
 
@@ -44,10 +47,10 @@ function App() {
     <Route path="profile" element={<Profile />} errorElement={<Error />} />
     <Route path="appointments" element={<Appointments />} errorElement={<Error />} />
     <Route path="appointments/:doctorId" element={<DoctorAppointments />} errorElement={<Error />} />
-    <Route path="billing" element={<Billing />} errorElement={<Error />} />
     <Route path="treatmentanddiagnosis" element={<Treatmentanddiagnosis />} errorElement={<Error />} />
     <Route path="uploadData" element={<MedicalFileUpload />} errorElement={<Error />} />
     <Route path="Myfiles" element={<MedicalFiles />} errorElement={<Error />} />
+    <Route path="prescriptions/:patientId" element={<PrescriptionDetails />} />
     <Route path="settings" element={<Settings />} errorElement={<Error />} />
   </Route>
 </Routes>
