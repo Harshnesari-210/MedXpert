@@ -37,42 +37,36 @@ const Billing = () => {
   }, [patientId]);
 
   const addPrescription = async () => {
-    let prescription;
-  
-    // First, try to get from selectedPrescription
-    if (selectedPrescription !== "") {
-      prescription = staticMedicines.find(
-        (item) => item.id === parseInt(selectedPrescription)
-      );
-    } else if (billItems.length > 0) {
-      // Fallback: use the last added item in bill
-      prescription = billItems[billItems.length - 1];
-    }
-  
-    if (!prescription) {
-      alert("Please select a medication!");
+    if (billItems.length === 0) {
+      alert("Please add at least one medicine to the bill before saving the prescription!");
       return;
     }
   
     try {
+      const medicines = billItems.map((item) => ({
+        name: item.name,
+        quantity: `${item.quantity} units`,
+        instructions: "Take after food",
+      }));
+  
       const response = await axios.post(`/prescriptions/${patientId}`, {
-        medicines: [{
-          name: prescription.name,
-          quantity: `${quantity} units`,  // or "2 tablets", etc.
-          instructions: "Take after food", // optional but useful
-        }]
+        medicines
       });
-      
   
       alert("Prescription added successfully!");
+  
+      // Save to state
       setPrescriptions((prev) => [...prev, response.data.prescription]);
   
-      // Optional: reset selection
+      // Reset everything
+      setBillItems([]);
       setSelectedPrescription("");
+      setQuantity(1);
     } catch (error) {
       console.error("Error adding prescription:", error);
     }
   };
+  
   
   
 

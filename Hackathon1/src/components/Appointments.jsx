@@ -30,7 +30,7 @@ function Appointments() {
 
   const handleCardClick = (patientId) => {
     if (patientId) {
-      navigate(`patient/prescriptions/${patientId}`);
+      navigate(`/patient/prescriptions/${patientId}`);
     } else {
       console.warn("No patient ID found for this appointment");
     }
@@ -46,7 +46,7 @@ function Appointments() {
         {appointments.map((appt) => (
           <div
             key={appt._id}
-            onClick={() => handleCardClick(appt.patientId?._id)}
+            onClick={() => handleCardClick(appt.patientId)}
             className="cursor-pointer bg-white p-5 rounded-xl shadow hover:bg-gray-50 transition"
           >
             {appt.doctorId ? (

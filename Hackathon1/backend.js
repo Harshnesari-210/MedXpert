@@ -33,7 +33,6 @@ app.use('/medical-files', medicalFileRoutes);
 
 
 
-
 // Signup Route
 app.post("/signup", async (req, res) => {
   const { firstName, lastName, email, password, role, speciality } = req.body;
@@ -400,7 +399,7 @@ app.get('/booked-slots', authenticateDoctor, async (req, res) => {
     if (req.user.role === 'doctor') {
       appointments = await Appointment.find({ doctorId: req.user._id }).populate("patientId", "firstName lastName email");
     } else if (req.user.role === 'patient') {
-      appointments = await Appointment.find({ patientId: req.user._id }).populate("doctorId", "firstName lastName speciality email");
+      appointments = await Appointment.find({ patientId: req.user._id }).populate("doctorId", "firstName lastName speciality email _id");
     } else {
       return res.status(400).json({ message: "Invalid role" });
     }
@@ -495,6 +494,7 @@ app.get('/prescriptions/:patientId', async (req, res) => {
 
 
 // Serve static files
+
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "dist")));
 app.get("*", (req, res) => {
