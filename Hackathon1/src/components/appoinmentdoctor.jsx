@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom'; // ✅ Make sure to import Link
 
 function AppointmentDoctor() {
   const [appointments, setAppointments] = useState([]);
@@ -38,7 +39,15 @@ function AppointmentDoctor() {
           <li key={appt._id} className="border p-4 rounded shadow">
             {appt.patientId ? (
               <>
-                <p><strong>Patient:</strong> {appt.patientId.firstName} {appt.patientId.lastName}</p>
+                <p>
+                  <strong>Patient:</strong>{" "}
+                  <Link
+                    to={`/doctor/patient/${appt.patientId._id}`}
+                    className="text-blue-500 underline hover:text-blue-700"
+                  >
+                    {appt.patientId.firstName} {appt.patientId.lastName}
+                  </Link>
+                </p>
                 <p><strong>Email:</strong> {appt.patientId.email}</p>
               </>
             ) : (
