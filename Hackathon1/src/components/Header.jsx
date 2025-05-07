@@ -126,12 +126,16 @@ function Header({ userType }) {
     formData.append("description", "Uploaded via header");
 
     try {
-      const response = await axios.post("http://localhost:3000/medical-files/upload", formData, {
-        withCredentials: true, // important for sending cookies
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:3000/medical-files/upload",
+        formData,
+        {
+          withCredentials: true, // important for sending cookies
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       alert("File uploaded successfully!");
     } catch (error) {
       console.error(error);
@@ -174,30 +178,23 @@ function Header({ userType }) {
                   <AiOutlineFileText className="text-lg" />
                   Lab Reports
                 </Link>
-                <Link
-                  to={`/${userType}/billing`}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-                >
-                  <AiOutlineDollarCircle className="text-lg" />
-                  Billing
-                </Link>
+                
 
                 {/* Upload Button */}
                 <Link
-  to={`/${userType}/uploadData`}
-  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
->
-  <AiOutlineUpload className="text-lg" />
-  Upload
-</Link>
-<Link
-  to={`/${userType}/Myfiles`}
-  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
->
-  <AiOutlineUpload className="text-lg" />
-  My Files
-</Link>
-
+                  to={`/${userType}/uploadData`}
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
+                >
+                  <AiOutlineUpload className="text-lg" />
+                  Upload
+                </Link>
+                <Link
+                  to={`/${userType}/Myfiles`}
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
+                >
+                  <AiOutlineUpload className="text-lg" />
+                  My Files
+                </Link>
               </>
             )}
 
@@ -218,12 +215,14 @@ function Header({ userType }) {
                   Appointments
                 </Link>
                 <Link
-  to={`/${userType}/availability`}
-  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
->
-  <AiOutlineUpload className="text-lg" />
-  SEt availability
-</Link>
+                  to={`/${userType}/availability`}
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
+                >
+                  <AiOutlineUpload className="text-lg" />
+                  SEt availability
+                </Link>
+
+               
               </>
             )}
           </nav>

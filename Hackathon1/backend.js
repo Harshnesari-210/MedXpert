@@ -392,24 +392,31 @@ app.post("/book-slot", authenticateDoctor, async (req, res) => {
 });
 
 app.get('/booked-slots', authenticateDoctor, async (req, res) => {
-
   try {
     let appointments;
-    console.log(req.user)
+
+    console.log(req.user);
+
+    // Check if the user is a doctor or patient and populate fields accordingly
     if (req.user.role === 'doctor') {
-      appointments = await Appointment.find({ doctorId: req.user._id }).populate("patientId", "firstName lastName email");
+      appointments = await Appointment.find({ doctorId: req.user._id })
+        .populate('patientId', 'firstName lastName email')  // Populate patient details
+        .populate('timeSlot');  // Populate timeSlot if necessary
     } else if (req.user.role === 'patient') {
-      appointments = await Appointment.find({ patientId: req.user._id }).populate("doctorId", "firstName lastName speciality email _id");
+      appointments = await Appointment.find({ patientId: req.user._id })
+        .populate('doctorId', 'firstName lastName speciality email _id')  // Populate doctor details
+        .populate('timeSlot');  // Populate timeSlot if necessary
     } else {
-      return res.status(400).json({ message: "Invalid role" });
+      return res.status(400).json({ message: 'Invalid role' });
     }
 
     res.status(200).json(appointments);
   } catch (error) {
-    console.error("Error fetching appointments:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 app.get('/all-files', async (req, res) => {
   try {
