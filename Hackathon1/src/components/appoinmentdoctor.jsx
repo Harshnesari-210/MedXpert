@@ -58,6 +58,7 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 function AppointmentDoctor() {
   const [appointments, setAppointments] = useState([]);
@@ -83,7 +84,6 @@ function AppointmentDoctor() {
     fetchAppointments();
   }, []);
 
-  // Function to group appointments by date
   const groupAppointmentsByDate = (appointments) => {
     const grouped = appointments.reduce((acc, appt) => {
       const date = new Date(appt.date).toLocaleDateString();
@@ -94,7 +94,6 @@ function AppointmentDoctor() {
     setGroupedAppointments(grouped);
   };
 
-  // Handle date filter change
   const handleDateFilterChange = (event) => {
     setSelectedDate(event.target.value);
   };
@@ -115,18 +114,13 @@ function AppointmentDoctor() {
     );
   }
 
-  // Filter appointments based on the selected date
-  const appointmentsToShow = selectedDate
-    ? groupedAppointments[selectedDate]
-    : Object.values(groupedAppointments).flat();
-
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <h2 className="text-3xl font-semibold mb-6 text-blue-700 text-center animate__animated animate__fadeIn">
+      <h2 className="text-3xl font-semibold mb-6 text-blue-700 text-center">
         Appointments with Your Patients
       </h2>
 
-      {/* Date Filter Dropdown */}
+      {/* Date Filter */}
       <div className="mb-6">
         <label htmlFor="dateFilter" className="block text-lg font-medium text-gray-700">
           Filter by Date:
@@ -146,44 +140,50 @@ function AppointmentDoctor() {
         </select>
       </div>
 
-      {/* Render appointments grouped by date */}
-      {Object.keys(groupedAppointments).map((date) => (
-        (selectedDate === '' || selectedDate === date) && (
+      {/* Appointments */}
+      {Object.keys(groupedAppointments).map((date) =>
+        (selectedDate === '' || selectedDate === date) ? (
           <div key={date}>
             <h3 className="text-2xl font-semibold mb-4 text-blue-600">{date}</h3>
-            <ul className="space-y-6">
-              {groupedAppointments[date].map((appt) => (
-                <li
-                  key={appt._id}
-                  className="bg-white border border-gray-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105"
-                >
-                  <div className="mb-4">
-                    {appt.patientId ? (
-                      <>
-                        <p className="text-lg font-medium text-gray-800">
-                          <strong className="text-blue-600">Patient:</strong> {appt.patientId.firstName} {appt.patientId.lastName}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <strong>Email:</strong> {appt.patientId.email}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-sm text-gray-500">Patient information not available</p>
-                    )}
+            <div className="space-y-6">
+              {groupedAppointments[date].map((appt) => {
+                const patient = appt.patientId;
+                const patientName = patient ? `${patient.firstName} ${patient.lastName}` : 'Unknown';
 
-                    <p className="text-sm text-gray-600 mt-2">
-                      <strong className="text-blue-600">Date:</strong> {new Date(appt.date).toLocaleDateString()}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong className="text-blue-600">Time:</strong> {appt.timeSlot}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                return (
+                  <Link
+                    key={appt._id}
+                    to={patient ? `/doctor/patient/${patient._id}` : '#'}
+                    className="block bg-white border border-gray-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105"
+                  >
+                    <div>
+                      {patient ? (
+                        <>
+                          <p className="text-lg font-medium text-gray-800">
+                            <strong className="text-blue-600">Patient:</strong> {patientName}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <strong>Email:</strong> {patient.email}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-gray-500">Patient information not available</p>
+                      )}
+
+                      <p className="text-sm text-gray-600 mt-2">
+                        <strong className="text-blue-600">Date:</strong> {new Date(appt.date).toLocaleDateString()}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <strong className="text-blue-600">Time:</strong> {appt.timeSlot}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        )
-      ))}
+        ) : null
+      )}
     </div>
   );
 }
