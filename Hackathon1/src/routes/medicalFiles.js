@@ -6,7 +6,7 @@ import {
   shareFile,
   getFilesSharedWithDoctor,
 } from '../controllers/medicalFileController.js';
-import authenticateDoctor from '../middlewares/auth.js'; // auth middleware
+import { authenticateDoctor } from '../middlewares/auth.js'; // Updated to use named import
 
 const router = express.Router();
 

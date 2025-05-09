@@ -1,242 +1,128 @@
-// import { Link, useNavigate } from "react-router-dom";
-// import PropTypes from "prop-types";
-// import {
-//   AiOutlineHome,
-//   AiOutlineCalendar,
-//   AiOutlineFileText,
-//   AiOutlineDollarCircle,
-//   AiOutlineUser,
-// } from "react-icons/ai"; // Import icons from react-icons
-
-// function Header({ userType }) {
-//   const navigate = useNavigate();
-
-//   const handleLogout = () => {
-//     // Handle logout logic here (clear cookies, redirect to login, etc.)
-//     navigate("/login");
-//   };
-
-//   return (
-//     <>
-//       <header className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 shadow-lg">
-//         <div className="container mx-auto flex justify-between items-center">
-//           {/* Logo */}
-//           <div className="text-3xl font-extrabold">
-//             {userType === "patient" ? "MedChain" : "Dashboard"}
-//           </div>
-
-//           {/* Navigation Links */}
-//           <nav className="flex gap-4">
-//             <Link
-//               to={`/${userType}`}
-//               className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-//             >
-//               <AiOutlineHome className="text-lg" />
-//               Home
-//             </Link>
-//             {userType === "patient" && (
-//               <>
-//                 <Link
-//                   to={`/${userType}/appointments`}
-//                   className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-//                 >
-//                   <AiOutlineCalendar className="text-lg" />
-//                   Appointments
-//                 </Link>
-//                 <Link
-//                   to={`/${userType}/labreports`}
-//                   className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-//                 >
-//                   <AiOutlineFileText className="text-lg" />
-//                   Lab Reports
-//                 </Link>
-//                 <Link
-//                   to={`/${userType}/billing`}
-//                   className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-//                 >
-//                   <AiOutlineDollarCircle className="text-lg" />
-//                   Billing
-//                 </Link>
-//               </>
-//             )}
-//             {userType === "doctor" && (
-//               <>
-//                 <Link
-//                   to={`/${userType}/profile`}
-//                   className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-//                 >
-//                   <AiOutlineUser className="text-lg" />
-//                   Profile
-//                 </Link>
-//                 <Link
-//                   to={`/${userType}/appointments`}
-//                   className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-//                 >
-//                   <AiOutlineCalendar className="text-lg" />
-//                   Appointments
-//                 </Link>
-//               </>
-//             )}
-//           </nav>
-
-//           {/* Logout */}
-//           <button
-//             onClick={handleLogout}
-//             className="px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 hover:scale-105 transition-transform"
-//           >
-//             Logout
-//           </button>
-//         </div>
-//       </header>
-//     </>
-//   );
-// }
-
-// Header.propTypes = {
-//   userType: PropTypes.string.isRequired,
-// };
-
-// export default Header;
-
 import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+import { motion } from "framer-motion";
 import {
-  AiOutlineHome,
-  AiOutlineCalendar,
-  AiOutlineFileText,
-  AiOutlineDollarCircle,
-  AiOutlineUser,
-  AiOutlineUpload,
-} from "react-icons/ai";
-import axios from "axios";
+  Home,
+  Calendar,
+  FileText,
+  User,
+  Upload,
+  LogOut,
+  Menu,
+  X
+} from "lucide-react";
+import { useState } from "react";
 
 function Header({ userType }) {
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     navigate("/login");
   };
 
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file); // adjust based on your backend key
-    formData.append("description", "Uploaded via header");
-
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/medical-files/upload",
-        formData,
-        {
-          withCredentials: true, // important for sending cookies
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      alert("File uploaded successfully!");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to upload file.");
-    }
+  const navItems = {
+    patient: [
+      { to: `/${userType}`, icon: Home, label: "Home" },
+      { to: `/${userType}/appointments`, icon: Calendar, label: "Appointments" },
+      { to: `/${userType}/labreports`, icon: FileText, label: "Lab Reports" },
+      { to: `/${userType}/uploadData`, icon: Upload, label: "Upload" },
+      { to: `/${userType}/Myfiles`, icon: FileText, label: "My Files" }
+    ],
+    doctor: [
+      { to: `/${userType}`, icon: Home, label: "Home" },
+      { to: `/${userType}/appointments`, icon: Calendar, label: "Appointments" },
+      { to: `/${userType}/profile`, icon: User, label: "Profile" },
+      { to: `/${userType}/availability`, icon: Calendar, label: "Availability" }
+    ]
   };
 
   return (
-    <>
-      <header className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 shadow-lg">
-        <div className="container mx-auto flex justify-between items-center">
+    <header className="bg-black border-b border-gray-800">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="text-3xl font-extrabold">
-            {userType === "patient" ? "MedChain" : "Dashboard"}
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-2xl font-bold text-white"
+          >
+            MedXpert
+          </motion.div>
 
-          {/* Navigation Links */}
-          <nav className="flex gap-4 items-center">
-            <Link
-              to={`/${userType}`}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-1">
+            {navItems[userType].map((item, index) => (
+              <motion.div
+                key={item.to}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Link
+                  to={item.to}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-900"
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </Link>
+              </motion.div>
+            ))}
+            
+            <motion.button
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: navItems[userType].length * 0.1 }}
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-900 ml-2"
             >
-              <AiOutlineHome className="text-lg" />
-              Home
-            </Link>
-
-            {userType === "patient" && (
-              <>
-                <Link
-                  to={`/${userType}/appointments`}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-                >
-                  <AiOutlineCalendar className="text-lg" />
-                  Appointments
-                </Link>
-                <Link
-                  to={`/${userType}/labreports`}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-                >
-                  <AiOutlineFileText className="text-lg" />
-                  Lab Reports
-                </Link>
-                
-
-                {/* Upload Button */}
-                <Link
-                  to={`/${userType}/uploadData`}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-                >
-                  <AiOutlineUpload className="text-lg" />
-                  Upload
-                </Link>
-                <Link
-                  to={`/${userType}/Myfiles`}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-                >
-                  <AiOutlineUpload className="text-lg" />
-                  My Files
-                </Link>
-              </>
-            )}
-
-            {userType === "doctor" && (
-              <>
-                <Link
-                  to={`/${userType}/profile`}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-                >
-                  <AiOutlineUser className="text-lg" />
-                  Profile
-                </Link>
-                <Link
-                  to={`/${userType}/appointments`}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-                >
-                  <AiOutlineCalendar className="text-lg" />
-                  Appointments
-                </Link>
-                <Link
-                  to={`/${userType}/availability`}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg shadow-md hover:bg-blue-100 hover:scale-105 transition-transform"
-                >
-                  <AiOutlineUpload className="text-lg" />
-                  SEt availability
-                </Link>
-
-               
-              </>
-            )}
+              <LogOut className="w-5 h-5" />
+              <span>Logout</span>
+            </motion.button>
           </nav>
 
-          {/* Logout */}
+          {/* Mobile Menu Button */}
           <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 hover:scale-105 transition-transform"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden text-gray-400 hover:text-white"
           >
-            Logout
+            {isMobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
-      </header>
-    </>
+
+        {/* Mobile Navigation */}
+        <motion.div
+          initial={false}
+          animate={{ height: isMobileMenuOpen ? "auto" : 0 }}
+          className="md:hidden overflow-hidden"
+        >
+          <div className="py-4 space-y-1">
+            {navItems[userType].map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-900"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <item.icon className="w-5 h-5" />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-900 w-full"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    </header>
   );
 }
 

@@ -15,46 +15,45 @@ import Appointment from "./modules/appoinment";
 import AppointmentDoctor from "./components/appoinmentdoctor";
 import MedicalFileUpload from "./components/uploadFile";
 import MedicalFile from "./modules/medicalFiles";
-import MedicalFiles from "./components/getfiles";
+import GetFiles from "./components/GetFiles";
 import SetAvailability from "./components/docotr-set-slots";
 import PatientDetail from "./components/Patientdetailsfordoctor";
 import PrescriptionDetails from "./components/PrescriptionDetails";
-
+import AppointmentDetails from "./components/AppointmentDetails";
 
 function App() {
   return (
     <Routes>
-  <Route path="/" element={<HomePage />} />
-  <Route path="/" element={<HomePage />} errorElement={<Error />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<HomePage />} errorElement={<Error />} />
 
-  <Route path="/login" element={<AuthPage isSignup={false} />} errorElement={<Error />} />
-  <Route path="/signup" element={<AuthPage isSignup={true} />} errorElement={<Error />} />
+      <Route path="/login" element={<AuthPage isSignup={false} />} errorElement={<Error />} />
+      <Route path="/signup" element={<AuthPage isSignup={true} />} errorElement={<Error />} />
 
-  <Route path="/doctor" element={<DashboardLayout userType={"doctor"} errorElement={<Error />} />} />
-  <Route path="/doctor" element={<DashboardLayout userType={"doctor"} />}>
-    <Route path="appointments" element={<AppointmentDoctor />} errorElement={<Error />} />
-    <Route path="profile" element={<DoctorProfile />} errorElement={<Error />} />
-    <Route path="availability" element={<SetAvailability />} errorElement={<Error />} />
-    <Route path="patient/:patientId" element={<PatientDetail />} errorElement={<Error />} />
-    <Route path="billing/:patientId" element={<Billing />} errorElement={<Error />} />
+      <Route path="/doctor" element={<DashboardLayout userType={"doctor"} errorElement={<Error />} />} />
+      <Route path="/doctor" element={<DashboardLayout userType={"doctor"} />}>
+        <Route path="appointments" element={<AppointmentDoctor />} errorElement={<Error />} />
+        <Route path="profile" element={<DoctorProfile />} errorElement={<Error />} />
+        <Route path="availability" element={<SetAvailability />} errorElement={<Error />} />
+        <Route path="patient/:patientId" element={<PatientDetail />} errorElement={<Error />} />
+        <Route path="billing/:patientId" element={<Billing />} errorElement={<Error />} />
+      </Route>
 
+      <Route path="/patient" element={<DashboardLayout userType={"patient"} errorElement={<Error />} />} />
+      <Route path="/patient" element={<DashboardLayout userType={"patient"} />}>
+        <Route path="labreports" element={<LabReport />} errorElement={<Error />} />
+        <Route path="profile" element={<Profile />} errorElement={<Error />} />
+        <Route path="appointments" element={<Appointments />} errorElement={<Error />} />
+        <Route path="appointments/:doctorId" element={<DoctorAppointments />} errorElement={<Error />} />
+        <Route path="treatmentanddiagnosis" element={<Treatmentanddiagnosis />} errorElement={<Error />} />
+        <Route path="uploadData" element={<MedicalFileUpload />} errorElement={<Error />} />
+        <Route path="Myfiles" element={<GetFiles />} errorElement={<Error />} />
+        <Route path="prescriptions/:patientId" element={<PrescriptionDetails />} />
+        <Route path="settings" element={<Settings />} errorElement={<Error />} />
+      </Route>
 
-  </Route>
-
-  <Route path="/patient" element={<DashboardLayout userType={"patient"} errorElement={<Error />} />} />
-  <Route path="/patient" element={<DashboardLayout userType={"patient"} />}>
-    <Route path="labreports" element={<LabReport />} errorElement={<Error />} />
-    <Route path="profile" element={<Profile />} errorElement={<Error />} />
-    <Route path="appointments" element={<Appointments />} errorElement={<Error />} />
-    <Route path="appointments/:doctorId" element={<DoctorAppointments />} errorElement={<Error />} />
-    <Route path="treatmentanddiagnosis" element={<Treatmentanddiagnosis />} errorElement={<Error />} />
-    <Route path="uploadData" element={<MedicalFileUpload />} errorElement={<Error />} />
-    <Route path="Myfiles" element={<MedicalFiles />} errorElement={<Error />} />
-    <Route path="prescriptions/:patientId" element={<PrescriptionDetails />} />
-    <Route path="settings" element={<Settings />} errorElement={<Error />} />
-  </Route>
-</Routes>
-
+      <Route path="/appointment/:id" element={<AppointmentDetails />} />
+    </Routes>
   );
 }
 

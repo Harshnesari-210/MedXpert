@@ -16,6 +16,7 @@ export default {
         sans: ['Poppins', 'sans-serif'],
         raleway: ['"Raleway Variable"', "sans-serif"],
         outfit: ['"Outfit Variable"', "sans-serif"],
+        modern: ['ModernAesthetic', 'sans-serif'],
       },
     },
   },

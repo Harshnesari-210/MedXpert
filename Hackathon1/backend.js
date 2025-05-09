@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Auth from "./src/modules/userAuth.js";
 import Appointment from "./src/modules/appoinment.js";
-import authenticateDoctor from "./src/middlewares/auth.js";
+import { authenticateUser, authenticateDoctor } from "./src/middlewares/auth.js";
 import path from "path";
 import DoctorAvailability from "./src/modules/doctorAvailibility.js";
 import medicalFileRoutes from "./src/routes/medicalFiles.js"
@@ -20,8 +20,10 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Replace with your frontend URL
-    credentials: true, // Ensure credentials are included in requests
+    origin: "http://localhost:5173", // Update this to match your frontend URL
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
 
@@ -77,7 +79,16 @@ app.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign({_id: user._id }, "hackathon", { expiresIn: "1h" });
-    res.cookie("token", token);
+    
+    // Set cookie with proper options
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // Set to true in production with HTTPS
+      sameSite: "lax",
+      maxAge: 3600000, // 1 hour
+      path: "/" // Important: set the path to root
+    });
+
     res.status(200).json({
       message: "Login successful",
       token,
@@ -351,7 +362,7 @@ app.get("/available-slots", async (req, res) => {
 
 
 
-app.post("/book-slot", authenticateDoctor, async (req, res) => {
+app.post("/book-slot", authenticateUser, async (req, res) => {
   const { doctorId, date, timeSlot } = req.body;
   const patientId = req.user._id;
 
@@ -361,7 +372,7 @@ app.post("/book-slot", authenticateDoctor, async (req, res) => {
 
   try {
     const formattedDate = new Date(date);
-    formattedDate.setHours(0, 0, 0, 0); // Normalize to start of the day
+    formattedDate.setHours(0, 0, 0, 0);
 
     // Check if the slot is already booked
     const existing = await Appointment.findOne({
@@ -391,7 +402,7 @@ app.post("/book-slot", authenticateDoctor, async (req, res) => {
   }
 });
 
-app.get('/booked-slots', authenticateDoctor, async (req, res) => {
+app.get('/booked-slots', authenticateUser, async (req, res) => {
   try {
     let appointments;
 
@@ -418,9 +429,10 @@ app.get('/booked-slots', authenticateDoctor, async (req, res) => {
 });
 
 
-app.get('/all-files', async (req, res) => {
+app.get('/all-files', authenticateUser, async (req, res) => {
+  const patientId = req.user._id;
   try {
-    const files = await MedicalFile.find()
+    const files = await MedicalFile.find({patientId:patientId})
       .populate('patientId', 'firstName lastName email') // Optional: populate patient details
       .populate('sharedWith', 'firstName lastName email'); // Optional: who it's shared with
 
@@ -436,7 +448,7 @@ app.get('/all-files', async (req, res) => {
 // In your Express app
 
 // Fetch patient details by patientId
-app.get('/patient/:patientId', authenticateDoctor, async (req, res) => {
+app.get('/patient/:patientId', authenticateUser, async (req, res) => {
   const { patientId } = req.params;
 
   try {
@@ -453,7 +465,7 @@ app.get('/patient/:patientId', authenticateDoctor, async (req, res) => {
 // In your Express app
 
 // Fetch all medical files for a specific patient
-app.get('/medical-files/:patientId', authenticateDoctor, async (req, res) => {
+app.get('/medical-files/:patientId', authenticateUser, async (req, res) => {
   const { patientId } = req.params;
 
   try {
@@ -468,7 +480,7 @@ app.get('/medical-files/:patientId', authenticateDoctor, async (req, res) => {
 
 
 // Doctor adds a prescription
-app.post('/prescriptions/:patientId', authenticateDoctor, async (req, res) => {
+app.post('/prescriptions/:patientId', authenticateUser, async (req, res) => {
   const { patientId } = req.params;
   const doctorId = req.user._id;
   const { medicines } = req.body;

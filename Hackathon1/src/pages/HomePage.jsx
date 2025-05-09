@@ -1,78 +1,156 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 function HomePage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
-  const [userType, setUserType] = useState(""); // User role: patient or doctor
-  // const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check login status on page load
-    const checkAuthStatus = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/profile", {
-          withCredentials: true,
-        }); // Verify token
-        setIsLoggedIn(true);
-        setUserType(response.data.role); // Assume `role` is stored in the database
-      } catch (error) {
-        console.error("Not logged in:", error.response?.data || error.message);
-        setIsLoggedIn(false);
-      }
-    };
-    checkAuthStatus();
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  // const handleLogout = async () => {
-  //   try {
-  //     await axios.post(
-  //       "http://localhost:3000/logout",
-  //       {},
-  //       { withCredentials: true }
-  //     ); // Invalidate token
-  //     setIsLoggedIn(false);
-  //     setUserType("");
-  //     navigate("/");
-  //   } catch (error) {
-  //     console.error("Logout failed:", error.response?.data || error.message);
-  //   }
-  // };
+  const handlePatientClick = () => {
+    navigate('/signup');
+  };
 
-  if (!isLoggedIn) {
-    // Render login/signup page if not logged in
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Our Project</h1>
-        <p className="mb-8">
-          This project connects doctors and patients seamlessly.
-        </p>
-        <div className="space-x-4">
-          <Link
-            to="/login"
-            className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-700 text-white"
+  const handleDoctorClick = () => {
+    navigate('/signup');
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <AnimatePresence mode="wait">
+        {isLoading ? (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 flex items-center justify-center bg-black z-50"
           >
-            Login
-          </Link>
-          <Link
-            to="/signup"
-            className="bg-green-500 px-4 py-2 rounded hover:bg-green-700 text-white"
+            <div className="text-center">
+              <motion.h1 
+                className="text-7xl font-bold mb-4 tracking-tight"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                MedXpert
+              </motion.h1>
+              <motion.div 
+                className="w-24 h-1 bg-white mx-auto"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+              />
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="page-transition"
           >
-            Signup
-          </Link>
-        </div>
-      </div>
-    );
-  }
+            <div className="container mx-auto px-4 py-16">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="max-w-4xl mx-auto"
+              >
+                <h1 className="text-8xl font-bold mb-6 project-name tracking-tight">
+                  MedXpert
+                </h1>
+                <p className="text-xl text-white/60 mb-12 font-light">
+                  Connecting healthcare professionals with patients through advanced AI technology
+                </p>
 
-  // Redirect to respective dashboards based on user role
-  // if (userType === "doctor") {
-  //   navigate("/doctor-dashboard");
-  // } else if (userType === "patient") {
-  //   navigate("/patient-dashboard");
-  // }
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-white/5 backdrop-blur-sm p-8 rounded-lg border border-white/10"
+                  >
+                    <h2 className="text-3xl font-bold mb-4">For Patients</h2>
+                    <p className="text-white/60 mb-6">
+                      Find the right specialist, book appointments, and manage your healthcare journey with ease.
+                    </p>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handlePatientClick}
+                      className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-white/90 transition-all duration-300"
+                    >
+                      Find a Doctor
+                    </motion.button>
+                  </motion.div>
 
-  return null; // Temporary loader while navigating
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="bg-white/5 backdrop-blur-sm p-8 rounded-lg border border-white/10"
+                  >
+                    <h2 className="text-3xl font-bold mb-4">For Doctors</h2>
+                    <p className="text-white/60 mb-6">
+                      Expand your practice, manage appointments, and provide better care with our AI-powered platform.
+                    </p>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleDoctorClick}
+                      className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-white/90 transition-all duration-300"
+                    >
+                      Join as Doctor
+                    </motion.button>
+                  </motion.div>
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                  className="text-center"
+                >
+                  <h2 className="text-4xl font-bold mb-6">Why Choose MedXpert?</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[
+                      {
+                        title: "AI-Powered Matching",
+                        description: "Find the perfect doctor-patient match using advanced algorithms"
+                      },
+                      {
+                        title: "Secure Platform",
+                        description: "Your data is protected with enterprise-grade security"
+                      },
+                      {
+                        title: "24/7 Support",
+                        description: "Round-the-clock assistance for all your needs"
+                      }
+                    ].map((feature, index) => (
+                      <div key={index} className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10">
+                        <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
+                        <p className="text-white/60">{feature.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export default HomePage;
