@@ -60,23 +60,16 @@ function MedicalFileUpload() {
         formData.append('description', 'Medical file upload');
       });
 
-      console.log('Uploading files:', files.map(f => f.name));
-      console.log('FormData entries:');
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
-      const response = await axios.post('/api/medical-files/upload', formData, {
+      const response = await axios.post('http://localhost:3000/medical-files/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        withCredentials: true,
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           console.log('Upload progress:', percentCompleted);
         }
       });
-
-      console.log('Upload response:', response.data);
 
       if (response.data) {
         setSuccess(true);
@@ -86,12 +79,7 @@ function MedicalFileUpload() {
         throw new Error(response.data.message || 'Upload failed');
       }
     } catch (error) {
-      console.error('Upload error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        headers: error.response?.headers
-      });
+      console.error('Upload error:', error);
       setError(error.response?.data?.message || error.message || 'Error uploading files. Please try again.');
     } finally {
       setUploading(false);

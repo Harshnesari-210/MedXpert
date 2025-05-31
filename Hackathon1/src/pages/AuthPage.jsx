@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRightIcon, UserIcon, LockClosedIcon, EnvelopeIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import Cookies from 'js-cookie';
 
 function AuthPage({ isSignup }) {
   const [isSignupMode, setIsSignupMode] = useState(isSignup);
@@ -13,10 +14,12 @@ function AuthPage({ isSignup }) {
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState("patient");
   const [speciality, setSpeciality] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (isSignupMode) {
       try {
@@ -29,13 +32,14 @@ function AuthPage({ isSignup }) {
           speciality: userType === "doctor" ? speciality.trim() : null,
         });
 
-        console.log(response.data);
-        setIsSignupMode(false);
+        if (response.data.success) {
+          setIsSignupMode(false);
+          setError("");
+        } else {
+          setError(response.data.message || "Signup failed");
+        }
       } catch (error) {
-        console.error(
-          "Error during signup:",
-          error.response?.data || error.message
-        );
+        setError(error.response?.data?.message || "Error during signup");
       }
     } else {
       try {
@@ -43,21 +47,32 @@ function AuthPage({ isSignup }) {
           email,
           password,
         }, {
-          withCredentials: true // Enable sending cookies
+          withCredentials: true
         });
 
-        console.log(response.data);
-
-        if (response.data.role === "patient") {
-          navigate("/patient");
+        if (response.data.success) {
+          // Store user type in localStorage as backup
+          localStorage.setItem('userType', response.data.role);
+          
+          // Set cookies manually as backup
+          Cookies.set('userType', response.data.role, { 
+            expires: 1,
+            path: '/',
+            domain: 'localhost'
+          });
+          
+          // Navigate based on role
+          if (response.data.role === "patient") {
+            navigate("/patient", { replace: true });
+          } else {
+            navigate("/doctor", { replace: true });
+          }
         } else {
-          navigate("/doctor");
+          setError(response.data.message || "Login failed");
         }
       } catch (error) {
-        console.error(
-          "Error during login:",
-          error.response?.data || error.message
-        );
+        console.error("Login error:", error);
+        setError(error.response?.data?.message || "Error during login");
       }
     }
   };
@@ -75,6 +90,12 @@ function AuthPage({ isSignup }) {
             className="max-w-md mx-auto"
           >
             <div className="bg-white/5 backdrop-blur-sm p-8 rounded-lg border border-white/10">
+              {error && (
+                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
+              
               <div className="flex justify-between items-center mb-12">
                 <div>
                   <h1 className="text-4xl font-bold tracking-tight mb-2">
@@ -87,7 +108,10 @@ function AuthPage({ isSignup }) {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsSignupMode(!isSignupMode)}
+                  onClick={() => {
+                    setIsSignupMode(!isSignupMode);
+                    setError("");
+                  }}
                   className="text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1 group"
                 >
                   <span>{isSignupMode ? "Login" : "Signup"}</span>

@@ -26,6 +26,7 @@
     "framer-motion": "^12.10.5",
     "gsap": "^3.13.0",
     "hackathon": "file:",
+    "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.508.0",
     "mongoose": "^8.8.3",

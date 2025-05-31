@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
   Calendar,
@@ -17,11 +17,13 @@ import {
   ChevronLeft,
   Filter,
   Search,
-  ArrowRight
+  ArrowRight,
+  FileText
 } from "lucide-react";
 
 function Appointments() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,7 +34,13 @@ function Appointments() {
 
   useEffect(() => {
     fetchAppointments();
-  }, []);
+    
+    // Check if we came from lab report with a selected doctor
+    if (location.state?.fromLabReport && location.state?.selectedDoctorId) {
+      // You can add logic here to highlight or focus on the selected doctor's appointments
+      console.log('Selected doctor from lab report:', location.state.selectedDoctorId);
+    }
+  }, [location.state]);
 
   const fetchAppointments = async () => {
     try {
@@ -81,8 +89,15 @@ function Appointments() {
   );
 
   const handleViewDetails = (appointment) => {
+    console.log('Navigating to appointment details:', appointment._id);
+    console.log('Full path:', `/patient/appointment/${appointment._id}`);
     // Navigate to appointment details page with appointment data
-    navigate(`/appointment/${appointment._id}`, { state: { appointment } });
+    navigate(`/patient/appointment/${appointment._id}`, { 
+      state: { 
+        appointment,
+        isPatient: true 
+      } 
+    });
   };
 
   if (loading) {
@@ -172,10 +187,20 @@ function Appointments() {
                           <Stethoscope className="w-4 h-4" />
                           <span>{appointment.doctorId?.speciality}</span>
                         </div>
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          <span>{appointment.doctorId?.email}</span>
+                        </div>
+                        {appointment.doctorId?.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="w-4 h-4" />
+                            <span>{appointment.doctorId?.phone}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end justify-between">
+                  <div className="flex flex-col items-end justify-between gap-4">
                     <div className="flex items-center gap-2">
                       <div className={`px-3 py-1 rounded-full text-sm ${
                         new Date(appointment.date) >= new Date()
@@ -185,15 +210,26 @@ function Appointments() {
                         {new Date(appointment.date) >= new Date() ? "Upcoming" : "Past"}
                       </div>
                     </div>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleViewDetails(appointment)}
-                      className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors bg-gray-800 px-4 py-2 rounded-lg hover:bg-gray-700"
-                    >
-                      View Details
-                      <ArrowRight className="w-4 h-4" />
-                    </motion.button>
+                    <div className="flex gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => navigate(`/patient/prescriptions/${appointment.patientId}`)}
+                        className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 px-4 py-2 rounded-lg hover:bg-blue-500/20"
+                      >
+                        View Prescriptions
+                        <FileText className="w-4 h-4" />
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleViewDetails(appointment)}
+                        className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors bg-gray-800 px-4 py-2 rounded-lg hover:bg-gray-700"
+                      >
+                        View Details
+                        <ArrowRight className="w-4 h-4" />
+                      </motion.button>
+                    </div>
                   </div>
                 </div>
               </motion.div>

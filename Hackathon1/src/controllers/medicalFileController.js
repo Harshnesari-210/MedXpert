@@ -4,7 +4,7 @@ import path from 'path';
 // Upload medical file
 export const uploadFile = async (req, res) => {
   try {
-    const { description } = req.body;
+    const { description, sharedWith } = req.body;
     const file = req.file;
 
     if (!file) {
@@ -16,16 +16,18 @@ export const uploadFile = async (req, res) => {
     }
 
     const newFile = new MedicalFile({
-      patientId: req.userId, // ✅ Make sure this is coming from authMiddleware
+      patientId: req.userId,
       fileName: file.originalname,
       fileUrl: `/uploads/${file.filename}`,
-      fileType: path.extname(file.originalname).slice(1).toUpperCase(), // e.g., PDF
+      fileType: path.extname(file.originalname).slice(1).toUpperCase(),
       description: description || '',
+      sharedWith: sharedWith ? [sharedWith] : []
     });
 
     await newFile.save();
     res.status(201).json(newFile);
   } catch (error) {
+    console.error('Error in uploadFile:', error);
     res.status(500).json({ error: 'Upload failed', details: error.message });
   }
 };
@@ -43,19 +45,26 @@ export const getMyFiles = async (req, res) => {
 // Share a file with a doctor
 export const shareFile = async (req, res) => {
   try {
-    const { fileId, doctorId } = req.body;
+    const { fileId } = req.params;
+    const { doctorId } = req.body;
+    const userId = req.user._id;
 
-    const file = await MedicalFile.findById(fileId);
-    if (!file) return res.status(404).json({ message: 'File not found' });
+    // Find the file and verify ownership
+    const file = await MedicalFile.findOne({ _id: fileId, userId });
+    if (!file) {
+      return res.status(404).json({ message: 'File not found or unauthorized' });
+    }
 
+    // Add doctor to sharedWith array if not already present
     if (!file.sharedWith.includes(doctorId)) {
       file.sharedWith.push(doctorId);
       await file.save();
     }
 
-    res.status(200).json({ message: 'File shared successfully' });
+    res.json({ message: 'File shared successfully', file });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error in shareFile:', error);
+    res.status(500).json({ message: 'Error sharing file' });
   }
 };
 
@@ -68,3 +77,13 @@ export const getFilesSharedWithDoctor = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+module.exports = {
+  uploadFile,
+  getMyFiles,
+  shareFile,
+  getFilesSharedWithDoctor
+};
+
+
+  

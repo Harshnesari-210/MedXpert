@@ -13,9 +13,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
-        raleway: ['"Raleway Variable"', "sans-serif"],
-        outfit: ['"Outfit Variable"', "sans-serif"],
+        sans: ['Space Grotesk', 'sans-serif'],
+        heading: ['Marcellus', 'serif'],
         modern: ['ModernAesthetic', 'sans-serif'],
       },
     },

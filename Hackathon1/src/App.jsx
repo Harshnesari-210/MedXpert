@@ -1,59 +1,84 @@
 import { Routes, Route } from "react-router-dom";
-import AuthPage from "./pages/AuthPage";
+import { AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import DashboardLayout from "./components/DashboardLayout";
-import LabReport from "./components/LabReport";
-import Profile from "./components/Profile";
-import Appointments from "./components/Appointments";
-import Billing from "./components/Billing";
-import Treatmentanddiagnosis from "./components/Treatmentanddiagnosis";
-import Settings from "./components/Settings";
-import Error from "./components/Error";
+import DoctorAppointments from "./components/appoinmentdoctor";
 import DoctorProfile from "./components/DoctorProfile";
-import DoctorAppointments from "./components/DoctorAppointments";
-import Appointment from "./modules/appoinment";
-import AppointmentDoctor from "./components/appoinmentdoctor";
-import MedicalFileUpload from "./components/uploadFile";
-import MedicalFile from "./modules/medicalFiles";
-import GetFiles from "./components/GetFiles";
 import SetAvailability from "./components/docotr-set-slots";
-import PatientDetail from "./components/Patientdetailsfordoctor";
-import PrescriptionDetails from "./components/PrescriptionDetails";
+import LabReport from "./components/LabReport";
+import PatientProfile from "./components/Profile";
+import Appointments from "./components/Appointments";
+import TreatmentAndDiagnosis from "./components/Treatmentanddiagnosis";
+import UploadData from "./components/uploadFile";
+import MyFiles from "./components/GetFiles";
+import Settings from "./components/Settings";
+import PageTransition from "./components/PageTransition";
 import AppointmentDetails from "./components/AppointmentDetails";
+import PrescriptionList from "./components/PrescriptionList";
+import PatientAppointmentDetails from "./components/PatientAppointmentDetails";
+import BookAppointment from "./components/BookAppointment";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+  const location = useLocation();
+
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/" element={<HomePage />} errorElement={<Error />} />
+    <div className="min-h-screen">
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<HomePage />} />
+          
+          {/* Auth Routes */}
+          <Route path="/login" element={
+            <PageTransition>
+              <LoginPage />
+            </PageTransition>
+          } />
+          <Route path="/signup" element={
+            <PageTransition>
+              <SignupPage />
+            </PageTransition>
+          } />
+          
+          {/* Doctor Routes */}
+          <Route path="/doctor" element={
+            <PageTransition>
+              <ProtectedRoute requiredRole="doctor">
+                <DashboardLayout userType="doctor" />
+              </ProtectedRoute>
+            </PageTransition>
+          }>
+            <Route path="appointments" element={<DoctorAppointments />} />
+            <Route path="profile" element={<DoctorProfile />} />
+            <Route path="availability" element={<SetAvailability />} />
+            <Route path="appointment/:appointmentId" element={<AppointmentDetails />} />
+          </Route>
 
-      <Route path="/login" element={<AuthPage isSignup={false} />} errorElement={<Error />} />
-      <Route path="/signup" element={<AuthPage isSignup={true} />} errorElement={<Error />} />
-
-      <Route path="/doctor" element={<DashboardLayout userType={"doctor"} errorElement={<Error />} />} />
-      <Route path="/doctor" element={<DashboardLayout userType={"doctor"} />}>
-        <Route path="appointments" element={<AppointmentDoctor />} errorElement={<Error />} />
-        <Route path="profile" element={<DoctorProfile />} errorElement={<Error />} />
-        <Route path="availability" element={<SetAvailability />} errorElement={<Error />} />
-        <Route path="patient/:patientId" element={<PatientDetail />} errorElement={<Error />} />
-        <Route path="billing/:patientId" element={<Billing />} errorElement={<Error />} />
-      </Route>
-
-      <Route path="/patient" element={<DashboardLayout userType={"patient"} errorElement={<Error />} />} />
-      <Route path="/patient" element={<DashboardLayout userType={"patient"} />}>
-        <Route path="labreports" element={<LabReport />} errorElement={<Error />} />
-        <Route path="profile" element={<Profile />} errorElement={<Error />} />
-        <Route path="appointments" element={<Appointments />} errorElement={<Error />} />
-        <Route path="appointments/:doctorId" element={<DoctorAppointments />} errorElement={<Error />} />
-        <Route path="treatmentanddiagnosis" element={<Treatmentanddiagnosis />} errorElement={<Error />} />
-        <Route path="uploadData" element={<MedicalFileUpload />} errorElement={<Error />} />
-        <Route path="Myfiles" element={<GetFiles />} errorElement={<Error />} />
-        <Route path="prescriptions/:patientId" element={<PrescriptionDetails />} />
-        <Route path="settings" element={<Settings />} errorElement={<Error />} />
-      </Route>
-
-      <Route path="/appointment/:id" element={<AppointmentDetails />} />
-    </Routes>
+          {/* Patient Routes */}
+          <Route path="/patient" element={
+            <PageTransition>
+              <ProtectedRoute requiredRole="patient">
+                <DashboardLayout userType="patient" />
+              </ProtectedRoute>
+            </PageTransition>
+          }>
+            <Route path="labreports" element={<LabReport />} />
+            <Route path="profile" element={<PatientProfile />} />
+            <Route path="appointments" element={<Appointments />} />
+            <Route path="book-appointment" element={<BookAppointment />} />
+            <Route path="treatmentanddiagnosis" element={<TreatmentAndDiagnosis />} />
+            <Route path="uploadData" element={<UploadData />} />
+            <Route path="Myfiles" element={<MyFiles />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="prescriptions/:patientId" element={<PrescriptionList />} />
+            <Route path="appointment/:appointmentId" element={<AppointmentDetails />} />
+          </Route>
+        </Routes>
+      </AnimatePresence>
+    </div>
   );
 }
 

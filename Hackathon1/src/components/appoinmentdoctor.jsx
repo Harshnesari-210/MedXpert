@@ -1,64 +1,8 @@
-// import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
-
-// function AppointmentDoctor() {
-//   const [appointments, setAppointments] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchAppointments = async () => {
-//       try {
-//         const response = await axios.get('http://localhost:3000/booked-slots', {
-//           withCredentials: true,
-//         });
-//         setAppointments(response.data);
-//       } catch (error) {
-//         console.error("Error fetching appointments:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchAppointments();
-//   }, []);
-
-//   if (loading) {
-//     return <p>Loading patient appointments...</p>;
-//   }
-
-//   if (appointments.length === 0) {
-//     return <p>No patients have booked appointments yet.</p>;
-//   }
-
-//   return (
-//     <div className="p-4">
-//       <h2 className="text-xl font-semibold mb-4">Appointments with Your Patients</h2>
-//       <ul className="space-y-4">
-//         {appointments.map((appt) => (
-//           <li key={appt._id} className="border p-4 rounded shadow">
-//             {appt.patientId ? (
-//               <>
-//                 <p><strong>Patient:</strong> {appt.patientId.firstName} {appt.patientId.lastName}</p>
-//                 <p><strong>Email:</strong> {appt.patientId.email}</p>
-//               </>
-//             ) : (
-//               <p>Patient information not available</p>
-//             )}
-//             <p><strong>Date:</strong> {new Date(appt.date).toLocaleDateString()}</p>
-//             <p><strong>Time:</strong> {appt.time}</p>
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }
-
-// export default AppointmentDoctor;
-
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { CalendarIcon, ClockIcon, UserIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 
 function AppointmentDoctor() {
   const [appointments, setAppointments] = useState([]);
@@ -72,6 +16,7 @@ function AppointmentDoctor() {
         const response = await axios.get('http://localhost:3000/booked-slots', {
           withCredentials: true,
         });
+        
         setAppointments(response.data);
         groupAppointmentsByDate(response.data);
       } catch (error) {
@@ -100,90 +45,134 @@ function AppointmentDoctor() {
 
   if (loading) {
     return (
-      <div className="p-4 text-center text-gray-500 animate-pulse">
-        Loading patient appointments...
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
       </div>
     );
   }
 
   if (Object.keys(groupedAppointments).length === 0) {
     return (
-      <div className="p-4 text-center text-gray-500">
-        No patients have booked appointments yet.
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center p-8 bg-gray-900 rounded-2xl shadow-xl max-w-md w-full mx-4 border border-gray-800">
+          <div className="mb-4">
+            <CalendarIcon className="h-16 w-16 text-white mx-auto" />
+          </div>
+          <h3 className="text-2xl font-bold text-gray-100 mb-2">No Appointments</h3>
+          <p className="text-gray-400">No patients have booked appointments yet.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <h2 className="text-3xl font-semibold mb-6 text-blue-700 text-center">
-        Appointments with Your Patients
-      </h2>
-
-      {/* Date Filter */}
-      <div className="mb-6">
-        <label htmlFor="dateFilter" className="block text-lg font-medium text-gray-700">
-          Filter by Date:
-        </label>
-        <select
-          id="dateFilter"
-          className="mt-2 p-2 w-full border border-gray-300 rounded-md"
-          onChange={handleDateFilterChange}
-          value={selectedDate}
+    <div className="min-h-screen bg-black py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
         >
-          <option value="">All Dates</option>
-          {Object.keys(groupedAppointments).map((date) => (
-            <option key={date} value={date}>
-              {date}
-            </option>
-          ))}
-        </select>
+          <h2 className="text-4xl font-bold text-gray-100 mb-4">Patient Appointments</h2>
+          <p className="text-lg text-gray-400">Manage and view your upcoming appointments</p>
+        </motion.div>
+
+        {/* Date Filter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 bg-gray-900 rounded-2xl shadow-lg p-6 border border-gray-800"
+        >
+          <label htmlFor="dateFilter" className="block text-sm font-semibold text-gray-300 mb-2">
+            Filter by Date
+          </label>
+          <select
+            id="dateFilter"
+            className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl shadow-sm focus:ring-2 focus:ring-white focus:border-white text-gray-100"
+            onChange={handleDateFilterChange}
+            value={selectedDate}
+          >
+            <option value="">All Dates</option>
+            {Object.keys(groupedAppointments).map((date) => (
+              <option key={date} value={date}>
+                {date}
+              </option>
+            ))}
+          </select>
+        </motion.div>
+
+        {/* Appointments */}
+        <div className="space-y-8">
+          {Object.keys(groupedAppointments).map((date) =>
+            (selectedDate === '' || selectedDate === date) ? (
+              <motion.div
+                key={date}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gray-900 rounded-2xl shadow-lg overflow-hidden border border-gray-800"
+              >
+                <div className="px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-900">
+                  <h3 className="text-xl font-bold text-gray-100">{date}</h3>
+                </div>
+                <div className="divide-y divide-gray-800">
+                  {groupedAppointments[date].map((appt) => {
+                    const patient = appt.patientId;
+                    const patientName = patient ? `${patient.firstName} ${patient.lastName}` : 'Unknown';
+
+                    return (
+                      <Link
+                        key={appt._id}
+                        to={`/doctor/appointment/${appt._id}`}
+                        className="block hover:bg-gray-800 transition-all duration-200"
+                      >
+                        <div className="px-6 py-6">
+                          <div className="flex items-center space-x-6">
+                            <div className="flex-shrink-0">
+                              <div className="h-16 w-16 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
+                                <UserIcon className="h-8 w-8 text-white" />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className="text-xl font-semibold text-gray-100 truncate">
+                                  {patientName}
+                                </p>
+                                <div className="ml-2 flex-shrink-0">
+                                  <span className="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-gray-800 text-gray-100 border border-gray-700">
+                                    {appt.timeSlot}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                <div className="flex items-center text-sm text-gray-400">
+                                  <EnvelopeIcon className="flex-shrink-0 mr-2 h-5 w-5 text-white" />
+                                  <span>{patient?.email || 'Email not available'}</span>
+                                </div>
+                                <div className="flex items-center text-sm text-gray-400">
+                                  <PhoneIcon className="flex-shrink-0 mr-2 h-5 w-5 text-white" />
+                                  <span>{patient?.phone || 'Phone not available'}</span>
+                                </div>
+                                <div className="flex items-center text-sm text-gray-400">
+                                  <CalendarIcon className="flex-shrink-0 mr-2 h-5 w-5 text-white" />
+                                  <span>{new Date(appt.date).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex items-center text-sm text-gray-400">
+                                  <ClockIcon className="flex-shrink-0 mr-2 h-5 w-5 text-white" />
+                                  <span>{appt.timeSlot}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            ) : null
+          )}
+        </div>
       </div>
-
-      {/* Appointments */}
-      {Object.keys(groupedAppointments).map((date) =>
-        (selectedDate === '' || selectedDate === date) ? (
-          <div key={date}>
-            <h3 className="text-2xl font-semibold mb-4 text-blue-600">{date}</h3>
-            <div className="space-y-6">
-              {groupedAppointments[date].map((appt) => {
-                const patient = appt.patientId;
-                const patientName = patient ? `${patient.firstName} ${patient.lastName}` : 'Unknown';
-
-                return (
-                  <Link
-                    key={appt._id}
-                    to={patient ? `/doctor/patient/${patient._id}` : '#'}
-                    className="block bg-white border border-gray-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105"
-                  >
-                    <div>
-                      {patient ? (
-                        <>
-                          <p className="text-lg font-medium text-gray-800">
-                            <strong className="text-blue-600">Patient:</strong> {patientName}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            <strong>Email:</strong> {patient.email}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-sm text-gray-500">Patient information not available</p>
-                      )}
-
-                      <p className="text-sm text-gray-600 mt-2">
-                        <strong className="text-blue-600">Date:</strong> {new Date(appt.date).toLocaleDateString()}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <strong className="text-blue-600">Time:</strong> {appt.timeSlot}
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ) : null
-      )}
     </div>
   );
 }

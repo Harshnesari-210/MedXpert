@@ -5,30 +5,39 @@ import App from "./App"; // Your main App component
 import "./index.css"; // Your global CSS file
 import './fonts.css';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 // Configure axios defaults
 axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.withCredentials = true;
 
-// Add request interceptor for debugging
-axios.interceptors.request.use(request => {
-  console.log('Starting Request:', request);
-  return request;
-});
+// Add request interceptor
+axios.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-// Add response interceptor for debugging
+// Add response interceptor
 axios.interceptors.response.use(
-  response => {
-    console.log('Response:', response);
+  (response) => {
     return response;
   },
-  error => {
-    console.error('Axios Error:', {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
-      config: error.config
-    });
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear cookies on unauthorized access
+      Cookies.remove('token');
+      Cookies.remove('userType');
+      // Redirect to login
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );

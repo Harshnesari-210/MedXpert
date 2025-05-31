@@ -28,40 +28,25 @@ function GetFiles() {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchFiles = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("/get-files");
-        if (isMounted) {
-          if (response.data && Array.isArray(response.data.files)) {
-            setFiles(response.data.files);
-          } else {
-            setFiles([]);
-            setError("Invalid response format from server");
-          }
-          setError(null);
-        }
-      } catch (error) {
-        console.error("Error fetching files:", error);
-        if (isMounted) {
-          setError("Failed to fetch files. Please try again later.");
-          setFiles([]);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
     fetchFiles();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
+
+  const fetchFiles = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get('http://localhost:3000/medical-files/my-files', {
+        withCredentials: true
+      });
+      console.log('Fetched files:', response.data);
+      setFiles(response.data);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      setError('Failed to fetch files. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (filename) => {
     try {
@@ -75,32 +60,25 @@ function GetFiles() {
     }
   };
 
-  const handleDownload = async (filename, originalname) => {
-    try {
-      const response = await axios.get(`/download-file/${filename}`, {
-        responseType: 'blob'
-      });
-      
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', originalname);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      setError("Failed to download file. Please try again.");
-    }
+  const handleDownload = (fileUrl, fileName) => {
+    window.open(`http://localhost:3000${fileUrl}`, '_blank');
   };
 
-  const getFileIcon = (mimetype) => {
-    if (!mimetype) return <FileText className="w-6 h-6" />;
-    if (mimetype.startsWith('image/')) return <Image className="w-6 h-6" />;
-    if (mimetype === 'application/pdf') return <FileText className="w-6 h-6" />;
-    if (mimetype.includes('spreadsheet') || mimetype.includes('excel')) return <FileText className="w-6 h-6" />;
-    if (mimetype.includes('zip') || mimetype.includes('rar')) return <FileArchive className="w-6 h-6" />;
-    return <FileText className="w-6 h-6" />;
+  const getFileIcon = (fileType) => {
+    switch (fileType.toLowerCase()) {
+      case 'pdf':
+        return <FileText className="w-6 h-6" />;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return <Image className="w-6 h-6" />;
+      case 'zip':
+      case 'rar':
+        return <FileArchive className="w-6 h-6" />;
+      default:
+        return <File className="w-6 h-6" />;
+    }
   };
 
   const formatFileSize = (bytes) => {
@@ -129,24 +107,24 @@ function GetFiles() {
   const filteredFiles = Array.isArray(files) ? files
     .filter(file => {
       if (!file) return false;
-      const matchesSearch = file.originalname?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false;
+      const matchesSearch = file.fileName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false;
       const matchesFilter = filter === 'all' || 
-        (filter === 'images' && file.mimetype?.startsWith('image/')) ||
-        (filter === 'documents' && (file.mimetype?.includes('pdf') || file.mimetype?.includes('word') || file.mimetype?.includes('excel'))) ||
-        (filter === 'archives' && (file.mimetype?.includes('zip') || file.mimetype?.includes('rar')));
+        (filter === 'images' && file.fileType?.startsWith('image/')) ||
+        (filter === 'documents' && (file.fileType?.includes('pdf') || file.fileType?.includes('word') || file.fileType?.includes('excel'))) ||
+        (filter === 'archives' && (file.fileType?.includes('zip') || file.fileType?.includes('rar')));
       return matchesSearch && matchesFilter;
     })
     .sort((a, b) => {
       if (!a || !b) return 0;
       if (sortBy === 'date') {
         return sortOrder === 'asc' 
-          ? new Date(a.uploadDate || 0) - new Date(b.uploadDate || 0)
-          : new Date(b.uploadDate || 0) - new Date(a.uploadDate || 0);
+          ? new Date(a.uploadedAt || 0) - new Date(b.uploadedAt || 0)
+          : new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0);
       }
       if (sortBy === 'name') {
         return sortOrder === 'asc'
-          ? (a.originalname || '').localeCompare(b.originalname || '')
-          : (b.originalname || '').localeCompare(a.originalname || '');
+          ? (a.fileName || '').localeCompare(b.fileName || '')
+          : (b.fileName || '').localeCompare(a.fileName || '');
       }
       if (sortBy === 'size') {
         return sortOrder === 'asc'
@@ -272,7 +250,7 @@ function GetFiles() {
           >
             {filteredFiles.map((file) => (
               <motion.div
-                key={file.filename}
+                key={file._id}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
@@ -280,28 +258,28 @@ function GetFiles() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center">
-                    {getFileIcon(file.mimetype)}
+                    {getFileIcon(file.fileType)}
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleDownload(file.filename, file.originalname)}
+                      onClick={() => handleDownload(file.fileUrl, file.fileName)}
                       className="p-2 text-gray-400 hover:text-white transition-colors"
                     >
                       <Download className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(file.filename)}
+                      onClick={() => handleDelete(file.fileName)}
                       className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
-                <h3 className="font-medium mb-2 truncate">{file.originalname}</h3>
+                <h3 className="font-medium mb-2 truncate">{file.fileName}</h3>
                 <div className="space-y-2 text-sm text-gray-400">
                   <p className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    {formatDate(file.uploadDate)}
+                    {formatDate(file.uploadedAt)}
                   </p>
                   <p>{formatFileSize(file.size)}</p>
                 </div>

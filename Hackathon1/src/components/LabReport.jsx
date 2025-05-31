@@ -44,7 +44,7 @@ function LabReport() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch("http://localhost:5000/generate_report", {
+      const response = await fetch("http://127.0.0.1:5000/generate_report", {
         method: "POST",
         body: formData,
       });
@@ -77,7 +77,15 @@ function LabReport() {
     }
   };
 
-  const handleAppointment = (doctorId) => navigate(`/patient/appointments/${doctorId}`);
+  const handleAppointment = (doctorId) => {
+    navigate('/patient/book-appointment', { 
+      state: { 
+        doctorId: doctorId,
+        fromLabReport: true,
+        doctorInfo: matchedDoctors.find(doc => doc._id === doctorId)
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-black text-white p-6">

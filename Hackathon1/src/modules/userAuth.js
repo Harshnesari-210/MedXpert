@@ -86,7 +86,7 @@ const userSchema = new mongoose.Schema({
   gender: { type: String, enum: ["male", "female", "other"], default: null }, // Optional field
   dob: { type: Date, default: null }, // Date of birth
   phone: { type: String, default: "" }, // Optional phone number
-  speciality: { type: String, required: false }, // URL or base64 for profile picture
+  speciality: { type: String, required: false }, 
 });
 
 const Auth = mongoose.model("Auth", userSchema);
