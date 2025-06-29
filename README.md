@@ -45,12 +45,17 @@ It includes secure login, role-based access (patient/doctor), and intelligent re
 
 ---
 
+
 ### 🛠️ Tech Stack
-- **Frontend**: React.js + Tailwind CSS
-- **Backend**: Node.js + Express
-- **AI Module**: Python Flask (T5 Transformer Model)
-- **Database**: MongoDB
-- **Authentication**: JWT with secure cookies
+
+| Layer           | Technologies                              |
+|------------------|-------------------------------------------|
+| **Frontend**     | React.js, Tailwind CSS                    |
+| **Backend**      | Node.js, Express.js                       |
+| **AI Module**    | Python Flask (T5 Transformer Model)       |
+| **Database**     | MongoDB                                   |
+| **Authentication** | JWT with secure cookies                |
+
 
 ---
 
