@@ -11,7 +11,7 @@
 
 
 <h1 align="center">🩺 MedXpert</h1>
-<p align="center"><i>AI-powered doctor recommendation & appoinment booking platform based on lab reports.</i></p>
+<p align="center"><i>AI-powered doctor recommendation & appointment booking platform based on lab reports.</i></p>
 
 
 ---
@@ -23,13 +23,13 @@ MedXpert was originally developed as part of a university hackathon/project unde
 Our goal was to address the challenge of inefficient diagnosis and medical consultation processes.
 
 🔍 **Why we built it:**  
-Patients often struggle to interpret their lab reports or choose the right specialist. We aimed to bridge this gap using AI.
+Patients often struggle to interpret their lab reports and  choose the right specialist. We aimed to bridge this gap using AI.
 
 🧠 **What we built:**  
 A full-stack web platform that allows users to upload lab reports, extracts symptoms using a fine-tuned T5 model, and auto-suggests specialized doctors accordingly.
 
 🛠️ **How we built it:**  
-The system is built using the MERN stack for frontend and backend, with a Python-Flask AI microservice for NLP.  
+The system uses MERN stack (React, Node.js, Express, MongoDB) and a Flask-based AI microservice (T5 Transformer) for NLP.
 It includes secure login, role-based access (patient/doctor), and intelligent report analysis.
 
 
