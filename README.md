@@ -10,7 +10,7 @@
 </p>
 
 
-<h1 align="center">🩺 MedXpert</h1>
+<h1 align="center"> MedXpert 🩺</h1>
 <p align="center"><i>AI-powered doctor recommendation & appointment booking platform based on lab reports.</i></p>
 
 
