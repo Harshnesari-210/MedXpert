@@ -1,10 +1,38 @@
+<p align="center">
+  <img src="https://img.shields.io/badge/AI-T5--Transformer-1f425f?style=for-the-badge&logo=OpenAI&logoColor=white" />
+  <img src="https://img.shields.io/badge/Backend-Node.js%20%7C%20Express-026e00?style=for-the-badge&logo=node.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/Frontend-React.js%20%7C%20TailwindCSS-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+  <img src="https://img.shields.io/badge/Database-MongoDB-4DB33D?style=for-the-badge&logo=mongodb&logoColor=white" />
+  <img src="https://img.shields.io/badge/Auth-JWT%20%7C%20RBAC-f0ad4e?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
+  <img src="https://img.shields.io/badge/Event-Team%20Mavericks%20Hackathon-6f42c1?style=for-the-badge&logo=github&logoColor=white" />
+  <img src="https://img.shields.io/badge/Status-Completed-28a745?style=for-the-badge&logo=checkmarx&logoColor=white" />
+  <img src="https://img.shields.io/github/license/Harshnesari-210/MedXpert?style=for-the-badge&color=grey&logo=opensourceinitiative&logoColor=white" />
+</p>
+
+
 <h1 align="center">🩺 MedXpert</h1>
 <p align="center"><i>AI-powered doctor recommendation & appoinment booking platform based on lab reports.</i></p>
 
+
 ---
 
-### 🔍 Overview
-MedXpert is a web-based AI platform that helps patients by analyzing lab reports and suggesting the most suitable medical specialists. It aims to reduce manual effort and improve diagnosis direction through intelligent keyword extraction and recommendation.
+
+## 🎓 Project Overview
+
+MedXpert was originally developed as part of a university hackathon/project under the team name "Team Mavericks."  
+Our goal was to address the challenge of inefficient diagnosis and medical consultation processes.
+
+🔍 **Why we built it:**  
+Patients often struggle to interpret their lab reports or choose the right specialist. We aimed to bridge this gap using AI.
+
+🧠 **What we built:**  
+A full-stack web platform that allows users to upload lab reports, extracts symptoms using a fine-tuned T5 model, and auto-suggests specialized doctors accordingly.
+
+🛠️ **How we built it:**  
+The system is built using the MERN stack for frontend and backend, with a Python-Flask AI microservice for NLP.  
+It includes secure login, role-based access (patient/doctor), and intelligent report analysis.
+
+
 
 ---
 
@@ -81,6 +109,6 @@ npm install
 npm start
 
 # Flask AI server
-cd ../ml-service
+cd ../AI_MODEL
 pip install -r requirements.txt
 python app.py
