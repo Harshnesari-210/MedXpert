@@ -32,8 +32,32 @@ We'll add a YouTube link or embedded video/GIF here later.
 
 ---
 
-### 📂 Folder Structure (Optional)
-> You can skip this now and add later if needed.
+### 📂 Folder Structure 
+```
+MedXpert/
+├── AI_MODEL/                 # Flask backend for AI – T5 model & symptom extraction
+│   ├── Flask_back.py         # Main Python server script
+│   ├── MyModel.ipynb         # Jupyter notebook with model training
+│   ├── requirements.txt      # Python dependencies
+│   └── templates/            # HTML templates for basic Flask serving
+│
+├── backend/                  # Express.js backend for APIs and auth
+│   ├── server.js             # App entry point
+│   ├── backend.js            # Core backend logic
+│   ├── routes/               # API route handlers
+│   └── uploads/              # Uploaded lab reports
+│
+├── src/                      # Frontend source (React)
+│   ├── components/           # UI components
+│   ├── pages/                # Route-specific pages
+│   └── App.js                # App bootstrap
+│
+├── public/                   # Public assets
+├── package.json              # Frontend dependencies
+├── backend.js                # (Note: also exists in root, can be renamed if duplicate)
+└── README.md
+```
+
 
 ---
 
@@ -49,7 +73,7 @@ cd backend
 npm install
 
 # Start backend server
-npm start
+npm begin
 
 # Open a new terminal for frontend
 cd ../frontend
