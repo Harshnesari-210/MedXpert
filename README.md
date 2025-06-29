@@ -19,8 +19,8 @@
 
 ## 🎓 Project Overview
 
-MedXpert was originally developed as part of a university hackathon/project under the team name "Team Mavericks."  
-Our goal was to address the challenge of inefficient diagnosis and medical consultation processes.
+MedXpert began as an idea during a university hackathon under the team name *Team Mavericks*.  
+Inspired by real-world medical challenges, it was later independently developed and scaled into a full-stack AI-powered platform.
 
 🔍 **Why we built it:**  
 Patients often struggle to interpret their lab reports and  choose the right specialist. We aimed to bridge this gap using AI.
